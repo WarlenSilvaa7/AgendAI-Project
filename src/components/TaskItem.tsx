@@ -11,9 +11,10 @@ interface TaskItemProps {
   time?: string;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit?: (id: string) => void;
 }
 
-export function TaskItem({ id, title, completed, time, onToggle, onDelete }: TaskItemProps) {
+export function TaskItem({ id, title, completed, time, onToggle, onDelete, onEdit }: TaskItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = () => {
@@ -38,6 +39,21 @@ export function TaskItem({ id, title, completed, time, onToggle, onDelete }: Tas
           completed && "animate-check-bounce bg-success border-success"
         )}
       />
+
+      {/* Edit button (small) */}
+      {onEdit && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground"
+          onClick={() => onEdit(id)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5h6M11 9h6M11 13h6M5 5h.01M5 9h.01M5 13h.01" />
+          </svg>
+        </Button>
+      )}
+
       <div className="flex-1 min-w-0">
         <p
           className={cn(

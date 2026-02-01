@@ -11,9 +11,11 @@ interface MonthlyStats {
 
 interface MonthlyOverviewProps {
   stats?: MonthlyStats;
+  tasks?: Array<{ day?: string; completed?: boolean }>;
+  schedule?: Array<{ day?: string; completed?: boolean }>;
 }
 
-export function MonthlyOverview({ stats }: MonthlyOverviewProps) {
+export function MonthlyOverview({ stats, tasks = [], schedule = [] }: MonthlyOverviewProps) {
   const defaultStats: MonthlyStats = {
     totalTasks: 124,
     completedTasks: 98,
@@ -23,18 +25,26 @@ export function MonthlyOverview({ stats }: MonthlyOverviewProps) {
 
   const data = stats || defaultStats;
   
-  // Generate mock calendar data for the month
+  // Build calendar data for the current month using real tasks/schedule
   const today = new Date();
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
-  
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+
   const calendarDays = Array.from({ length: daysInMonth }, (_, i) => {
     const dayNumber = i + 1;
-    const isPast = dayNumber < today.getDate();
+    const date = new Date(year, month, dayNumber);
+    const iso = date.toISOString().slice(0, 10);
     const isToday = dayNumber === today.getDate();
-    // Mock completion status (random for demo)
-    const completionRate = isPast ? Math.floor(Math.random() * 40) + 60 : 0;
-    return { day: dayNumber, isPast, isToday, completionRate };
+
+    const tasksForDay = tasks.filter((t) => t.day === iso);
+    const scheduleForDay = schedule.filter((s) => s.day === iso);
+
+    const total = tasksForDay.length + scheduleForDay.length;
+    const completed = (tasksForDay.filter((t) => t.completed).length) + (scheduleForDay.filter((s) => s.completed).length);
+
+    return { day: dayNumber, iso, isToday, total, completed };
   });
 
   const monthName = today.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
@@ -89,17 +99,18 @@ export function MonthlyOverview({ stats }: MonthlyOverviewProps) {
               <div key={`empty-${i}`} className="aspect-square" />
             ))}
             {/* Calendar days */}
-            {calendarDays.map(({ day, isPast, isToday, completionRate }) => (
+            {calendarDays.map(({ day, iso, isToday, total, completed }) => (
               <div
                 key={day}
                 className={cn(
                   "aspect-square rounded-md flex items-center justify-center text-[10px] font-medium transition-colors",
                   isToday && "ring-2 ring-primary ring-offset-1",
-                  isPast && completionRate === 100 && "bg-success/60 text-success-foreground",
-                  isPast && completionRate > 0 && completionRate < 100 && "bg-warning/60 text-warning-foreground",
-                  isPast && completionRate === 0 && "bg-destructive/50 text-destructive-foreground",
-                  !isPast && !isToday && "bg-secondary/50 text-muted-foreground"
+                  total === 0 && "bg-transparent text-muted-foreground",
+                  total > 0 && completed === total && "bg-success/60 text-success-foreground",
+                  total > 0 && completed > 0 && completed < total && "bg-amber-400/60 text-amber-900",
+                  total > 0 && completed === 0 && "bg-destructive/50 text-destructive-foreground"
                 )}
+                title={total > 0 ? `${completed}/${total} concluídos` : "Sem atividades"}
               >
                 {day}
               </div>
@@ -111,12 +122,16 @@ export function MonthlyOverview({ stats }: MonthlyOverviewProps) {
               <span>100%</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-warning/60" />
+              <div className="w-3 h-3 rounded bg-amber-400/60" />
               <span>Parcial</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded bg-destructive/50" />
               <span>0%</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded bg-transparent border border-muted" />
+              <span>Sem atividades</span>
             </div>
           </div>
         </div>
