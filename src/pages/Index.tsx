@@ -27,6 +27,7 @@ import {
   TrendingUp,
   Sparkles
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface Task {
   id: string;
@@ -325,6 +326,7 @@ export default function Index() {
               <p className="text-sm text-muted-foreground capitalize">{today}</p>
             </div>
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <div className="h-8 w-8 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-medium text-sm">
                 U
               </div>
