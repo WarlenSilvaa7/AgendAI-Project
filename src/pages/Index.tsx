@@ -12,11 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { TaskItem } from "@/components/TaskItem";
 import { ScheduleBlock } from "@/components/ScheduleBlock";
-import { AIAssistant } from "@/components/AIAssistant";
+import SubjectNotes from "@/components/SubjectNotes";
 import { StatsCard } from "@/components/StatsCard";
 import { DaySelector } from "@/components/DaySelector";
 import { MonthlyOverview } from "@/components/MonthlyOverview";
-import { useRoutineAI } from "@/hooks/useRoutineAI";
 import { useToast } from "@/hooks/use-toast";
 import { 
   CalendarDays, 
@@ -25,7 +24,8 @@ import {
   Plus,
   Target,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  FileText
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -100,7 +100,6 @@ export default function Index() {
   const [scheduleDialogDuration, setScheduleDialogDuration] = useState("");
   const [scheduleDialogCategory, setScheduleDialogCategory] = useState<ScheduleItem["category"]>("work");
 
-  const { generateRoutine, isLoading } = useRoutineAI();
   const { toast } = useToast();
 
   const resetTaskDialog = () => {
@@ -268,43 +267,7 @@ export default function Index() {
     setSchedule((prev) => prev.map((s) => (s.id === id ? { ...s, completed: !s.completed } : s)));
   };
 
-  const handleAISubmit = async (message: string) => {
-    const result = await generateRoutine(message);
-    if (result) {
-      if (result.tasks && result.tasks.length > 0) {
-        const newTasks: Task[] = result.tasks.map((t, i) => ({
-          id: `ai-${Date.now()}-${i}`,
-          title: t.title,
-          completed: false,
-          time: t.time,
-          day: selectedDay,
-        }));
-        setTasks((prev) => [...prev, ...newTasks]);
-      }
 
-      if (result.schedule && result.schedule.length > 0) {
-        const newSchedule: ScheduleItem[] = result.schedule.map((s, i) => ({
-          id: `ai-${Date.now()}-${i}`,
-          time: s.time,
-          title: s.title,
-          duration: s.duration,
-          category: (s.category as ScheduleItem["category"]) || "work",
-          completed: false,
-          day: selectedDay,
-        }));
-        setSchedule((prev) => [...prev, ...newSchedule]);
-      }
-
-      toast({
-        title: "Rotina atualizada! ✨",
-        description: result.message || "Novas sugestões foram adicionadas",
-      });
-    }
-  };
-
-  const handleQuickPrompt = (prompt: string) => {
-    handleAISubmit(prompt);
-  };
 
   const today = new Date(selectedDay).toLocaleDateString("pt-BR", {
     weekday: "long",
@@ -458,16 +421,12 @@ export default function Index() {
           <Card className="lg:col-span-1 shadow-card border-primary/20">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg font-display">
-                <Sparkles className="h-5 w-5 text-primary" />
-                Organizar com IA
+                <FileText className="h-5 w-5 text-primary" />
+                Gestor de Notas por Assunto
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <AIAssistant
-                onSuggestion={handleQuickPrompt}
-                isLoading={isLoading}
-                onSubmit={handleAISubmit}
-              />
+              <SubjectNotes />
             </CardContent>
           </Card>
         </div>
