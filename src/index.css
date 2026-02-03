@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 175 70% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 94%;
+    --secondary-foreground: 220 25% 10%;
+
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 175 60% 92%;
+    --accent-foreground: 175 70% 25%;
+
+    --success: 150 60% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 175 70% 35%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 25% 10%;
+    --sidebar-primary: 175 70% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 175 60% 92%;
+    --sidebar-accent-foreground: 175 70% 25%;
+    --sidebar-border: 220 15% 88%;
+    --sidebar-ring: 175 70% 35%;
+
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(175 70% 35%) 0%, hsl(195 70% 40%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(175 60% 92%) 0%, hsl(195 60% 94%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 20% 98%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 25% 10% / 0.05);
+    --shadow-md: 0 4px 12px -2px hsl(220 25% 10% / 0.08);
+    --shadow-lg: 0 12px 32px -4px hsl(220 25% 10% / 0.12);
+    --shadow-card: 0 2px 8px -2px hsl(175 70% 35% / 0.08);
+    --shadow-card-hover: 0 8px 24px -4px hsl(175 70% 35% / 0.15);
+  }
+
+  .dark {
+    --background: 220 25% 8%;
+    --foreground: 210 20% 98%;
+
+    --card: 220 25% 12%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 220 25% 12%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 175 65% 45%;
+    --primary-foreground: 220 25% 8%;
+
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 220 20% 18%;
+    --muted-foreground: 220 15% 60%;
+
+    --accent: 175 40% 18%;
+    --accent-foreground: 175 65% 70%;
+
+    --success: 150 55% 50%;
+    --success-foreground: 220 25% 8%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 175 65% 45%;
+
+    --sidebar-background: 220 25% 10%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 175 65% 45%;
+    --sidebar-primary-foreground: 220 25% 8%;
+    --sidebar-accent: 175 40% 18%;
+    --sidebar-accent-foreground: 175 65% 70%;
+    --sidebar-border: 220 20% 20%;
+    --sidebar-ring: 175 65% 45%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(175 65% 45%) 0%, hsl(195 65% 50%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(175 40% 18%) 0%, hsl(195 40% 20%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(220 25% 12%) 0%, hsl(220 25% 10%) 100%);
+
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 12px -2px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 12px 32px -4px hsl(0 0% 0% / 0.4);
+    --shadow-card: 0 2px 8px -2px hsl(175 65% 45% / 0.1);
+    --shadow-card-hover: 0 8px 24px -4px hsl(175 65% 45% / 0.2);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .glass {
+    backdrop-filter: blur(12px);
+    background: hsl(0 0% 100% / 0.8);
+  }
+
+  .dark .glass {
+    background: hsl(220 25% 12% / 0.8);
+  }
+}
