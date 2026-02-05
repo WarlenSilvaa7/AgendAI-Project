@@ -289,7 +289,7 @@ export default function Index() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-display font-bold flex items-center gap-2">
-                <span className="gradient-primary bg-clip-text text-transparent">Rotin</span>
+                <span className="text-primary">Rotin</span>
                 <Sparkles className="h-5 w-5 text-primary" />
               </h1>
               <p className="text-sm text-muted-foreground capitalize">{today}</p>
