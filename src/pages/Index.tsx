@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn, calculateCurrentStreak } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -17,10 +18,10 @@ import { StatsCard } from "@/components/StatsCard";
 import { DaySelector } from "@/components/DaySelector";
 import { MonthlyOverview } from "@/components/MonthlyOverview";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  CalendarDays, 
-  CheckCircle2, 
-  Clock, 
+import {
+  CalendarDays,
+  CheckCircle2,
+  Clock,
   Plus,
   Target,
   TrendingUp,
@@ -281,6 +282,8 @@ export default function Index() {
     month: "long",
   });
 
+  const currentStreak = calculateCurrentStreak(tasks, schedule);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -377,7 +380,7 @@ export default function Index() {
           />
           <StatsCard
             title="Sequência"
-            value="5 dias"
+            value={`${currentStreak} dias`}
             subtitle="Continue assim!"
             icon={TrendingUp}
             trend="up"

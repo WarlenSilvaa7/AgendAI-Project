@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, TrendingUp, CheckCircle2, Target } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, calculateCurrentStreak } from "@/lib/utils";
 
 interface MonthlyStats {
   totalTasks: number;
   completedTasks: number;
   bestStreak: number;
+  currentStreak: number;
   averageCompletion: number;
 }
 
@@ -20,12 +21,11 @@ export function MonthlyOverview({ stats, tasks = [], schedule = [] }: MonthlyOve
     totalTasks: 124,
     completedTasks: 98,
     bestStreak: 12,
+    currentStreak: 0,
     averageCompletion: 79,
   };
 
-  const data = stats || defaultStats;
-  
-  // Build calendar data for the current month using real tasks/schedule
+  // If stats aren't provided, compute from `tasks` and `schedule` for the current month
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
@@ -46,6 +46,35 @@ export function MonthlyOverview({ stats, tasks = [], schedule = [] }: MonthlyOve
 
     return { day: dayNumber, iso, isToday, total, completed };
   });
+
+  // Aggregate totals and compute average completion
+  const totalTasksCount = calendarDays.reduce((acc, d) => acc + d.total, 0);
+  const completedTasksCount = calendarDays.reduce((acc, d) => acc + d.completed, 0);
+  const averageCompletion = totalTasksCount === 0 ? 0 : Math.round((completedTasksCount / totalTasksCount) * 100);
+
+  // Compute best streak: longest run of days where all activities that day are completed
+  let bestStreak = 0;
+  let run = 0;
+  for (let i = 0; i < calendarDays.length; i++) {
+    const d = calendarDays[i];
+    if (d.total > 0 && d.completed === d.total) {
+      run++;
+    } else {
+      if (run > bestStreak) bestStreak = run;
+      run = 0;
+    }
+  }
+  if (run > bestStreak) bestStreak = run;
+
+  const computedStats: MonthlyStats = {
+    totalTasks: totalTasksCount,
+    completedTasks: completedTasksCount,
+    bestStreak,
+    currentStreak: calculateCurrentStreak(tasks, schedule),
+    averageCompletion,
+  };
+
+  const data = stats || computedStats || defaultStats;
 
   const monthName = today.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
@@ -76,12 +105,19 @@ export function MonthlyOverview({ stats, tasks = [], schedule = [] }: MonthlyOve
             </div>
             <p className="text-xl font-bold font-display">{data.averageCompletion}%</p>
           </div>
-          <div className="col-span-2 p-3 rounded-lg bg-success/10 border border-success/20">
+          <div className="p-3 rounded-lg bg-success/10 border border-success/20">
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp className="h-4 w-4 text-success" />
               <span className="text-xs text-muted-foreground">Melhor sequência</span>
             </div>
             <p className="text-xl font-bold font-display text-success">{data.bestStreak} dias</p>
+          </div>
+          <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="h-4 w-4 text-orange-500" />
+              <span className="text-xs text-muted-foreground">Sequência atual</span>
+            </div>
+            <p className="text-xl font-bold font-display text-orange-500">{data.currentStreak} dias</p>
           </div>
         </div>
 
