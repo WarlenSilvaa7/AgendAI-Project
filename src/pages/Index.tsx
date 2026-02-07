@@ -106,6 +106,17 @@ export default function Index() {
   const [scheduleDialogDuration, setScheduleDialogDuration] = useState("");
   const [scheduleDialogCategory, setScheduleDialogCategory] = useState<ScheduleItem["category"]>("work");
 
+  const [currentTime, setCurrentTime] = useState(() =>
+    new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+  );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }));
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   const { toast } = useToast();
   const { user, loading, signInWithGoogle, logout } = useAuth();
 
@@ -190,6 +201,23 @@ export default function Index() {
   const totalItems = filteredTasks.length + filteredSchedule.length;
   const completedCount = completedTasks + completedSchedule;
   const completionRate = totalItems ? Math.round((completedCount / totalItems) * 100) : 0;
+
+  const nextTask = (() => {
+    const taskItems = filteredTasks
+      .filter((t) => t.time && !t.completed)
+      .map((t) => ({ time: t.time!, title: t.title }));
+
+    const scheduleItems = filteredSchedule
+      .filter((s) => !s.completed)
+      .map((s) => ({ time: s.time, title: s.title }));
+
+    const allItems = [...taskItems, ...scheduleItems].sort((a, b) => a.time.localeCompare(b.time));
+
+    if (selectedDay > todayISO) return allItems[0];
+    if (selectedDay < todayISO) return null;
+
+    return allItems.find((item) => item.time >= currentTime) || null;
+  })();
 
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingScheduleId, setEditingScheduleId] = useState<string | null>(null);
@@ -373,8 +401,8 @@ export default function Index() {
           />
           <StatsCard
             title="Próxima Tarefa"
-            value="09:00"
-            subtitle="Revisar emails"
+            value={nextTask ? nextTask.time : "--:--"}
+            subtitle={nextTask ? nextTask.title : "Sem tarefas pendentes"}
             icon={Clock}
             trend="neutral"
           />
