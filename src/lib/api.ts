@@ -1,6 +1,6 @@
 import { toast } from "@/hooks/use-toast";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "https://rotin-backend.onrender.com";
 
 export interface Task {
     id: string;
