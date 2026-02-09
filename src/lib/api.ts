@@ -8,6 +8,7 @@ export interface Task {
     completed: boolean;
     time?: string;
     day?: string;
+    user_id?: string;
 }
 
 export interface ScheduleItem {
@@ -18,6 +19,7 @@ export interface ScheduleItem {
     category: "work" | "personal" | "health" | "learning";
     completed?: boolean;
     day?: string;
+    user_id?: string;
 }
 
 export interface Subject {
@@ -36,8 +38,9 @@ async function handleResponse(response: Response) {
 }
 
 // --- TASKS ---
-export async function fetchTasks(): Promise<Task[]> {
-    const response = await fetch(`${API_BASE_URL}/tasks`);
+export async function fetchTasks(userId?: string): Promise<Task[]> {
+    const query = userId ? `?user_id=${userId}` : "";
+    const response = await fetch(`${API_BASE_URL}/tasks${query}`);
     return handleResponse(response);
 }
 
@@ -59,16 +62,18 @@ export async function updateTask(id: string, task: Task): Promise<Task> {
     return handleResponse(response);
 }
 
-export async function deleteTask(id: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+export async function deleteTask(id: string, userId?: string): Promise<void> {
+    const query = userId ? `?user_id=${userId}` : "";
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}${query}`, {
         method: "DELETE",
     });
     await handleResponse(response);
 }
 
 // --- SCHEDULE ---
-export async function fetchSchedule(): Promise<ScheduleItem[]> {
-    const response = await fetch(`${API_BASE_URL}/schedule`);
+export async function fetchSchedule(userId?: string): Promise<ScheduleItem[]> {
+    const query = userId ? `?user_id=${userId}` : "";
+    const response = await fetch(`${API_BASE_URL}/schedule${query}`);
     return handleResponse(response);
 }
 
@@ -90,26 +95,27 @@ export async function updateScheduleItem(id: string, item: ScheduleItem): Promis
     return handleResponse(response);
 }
 
-export async function deleteScheduleItem(id: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/schedule/${id}`, {
+export async function deleteScheduleItem(id: string, userId?: string): Promise<void> {
+    const query = userId ? `?user_id=${userId}` : "";
+    const response = await fetch(`${API_BASE_URL}/schedule/${id}${query}`, {
         method: "DELETE",
     });
     await handleResponse(response);
 }
 
 // --- SUBJECT NOTES ---
-export async function fetchNotes(date: string): Promise<Subject[]> {
-    const response = await fetch(`${API_BASE_URL}/notes/${date}`);
+export async function fetchNotes(date: string, userId?: string): Promise<Subject[]> {
+    const query = userId ? `?user_id=${userId}` : "";
+    const response = await fetch(`${API_BASE_URL}/notes/${date}${query}`);
     return handleResponse(response);
 }
 
-export async function saveNotes(date: string, subjects: Subject[]): Promise<Subject[]> {
-    const response = await fetch(`${API_BASE_URL}/notes/${date}`, {
+export async function saveNotes(date: string, subjects: Subject[], userId?: string): Promise<Subject[]> {
+    const query = userId ? `?user_id=${userId}` : "";
+    const response = await fetch(`${API_BASE_URL}/notes/${date}${query}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subjects), // Enviamos apenas a lista, o backend espera lista no corpo mas endpoint no backend espera { date, subjects }? Não.
-        // Backend espera: async def save_notes(date: str, subjects: List[Subject]):
-        // FastAPI vai ler subjects do body se for List[Subject].
+        body: JSON.stringify(subjects),
     });
     return handleResponse(response);
 }

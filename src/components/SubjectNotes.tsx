@@ -15,12 +15,13 @@ function generateId() {
 
 interface SubjectNotesProps {
   date: string;
+  userId?: string;
 }
 
 const BASE_ACTIVE_KEY = "subject-notes.active";
 
 // Minimalist Subject Notes manager. Uses API to sync data
-export default function SubjectNotes({ date }: SubjectNotesProps) {
+export default function SubjectNotes({ date, userId }: SubjectNotesProps) {
   const activeKey = `${BASE_ACTIVE_KEY}.${date}`;
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -30,7 +31,7 @@ export default function SubjectNotes({ date }: SubjectNotesProps) {
     let mounted = true;
     const load = async () => {
       try {
-        const data = await fetchNotes(date);
+        const data = await fetchNotes(date, userId);
         if (mounted) {
           if (data && data.length > 0) {
             setSubjects(data);
@@ -53,7 +54,7 @@ export default function SubjectNotes({ date }: SubjectNotesProps) {
     };
     load();
     return () => { mounted = false; };
-  }, [date]);
+  }, [date, userId]);
 
   const [activeId, setActiveId] = useState<string | null>(() => {
     try {
@@ -112,7 +113,7 @@ export default function SubjectNotes({ date }: SubjectNotesProps) {
     // Save to API
     try {
       setIsSaving(true);
-      await saveNotes(date, next);
+      await saveNotes(date, next, userId);
       setLastSavedAt(now());
     } catch (e) {
       console.error(e);
@@ -135,7 +136,7 @@ export default function SubjectNotes({ date }: SubjectNotesProps) {
     setSubjects(next);
     try {
       setIsSaving(true);
-      await saveNotes(date, next);
+      await saveNotes(date, next, userId);
       setLastSavedAt(now());
     } catch (e) {
       console.error(e);
@@ -165,7 +166,7 @@ export default function SubjectNotes({ date }: SubjectNotesProps) {
 
     try {
       setIsSaving(true);
-      await saveNotes(date, next);
+      await saveNotes(date, next, userId);
     } catch (e) {
       console.error(e);
     } finally {
@@ -181,7 +182,7 @@ export default function SubjectNotes({ date }: SubjectNotesProps) {
 
     try {
       setIsSaving(true);
-      await saveNotes(date, next);
+      await saveNotes(date, next, userId);
     } catch (e) {
       console.error(e);
     } finally {
@@ -197,7 +198,7 @@ export default function SubjectNotes({ date }: SubjectNotesProps) {
     if (timerRef.current) window.clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(async () => {
       try {
-        await saveNotes(date, next);
+        await saveNotes(date, next, userId);
         setLastSavedAt(now());
       } catch (e) {
         // noop

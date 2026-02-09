@@ -54,17 +54,20 @@ const today = new Date();
 const todayISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
 export default function Index() {
+  const { user, loading, signInWithGoogle, logout } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const { toast } = useToast();
 
   // Carregar dados do backend ao iniciar
   useEffect(() => {
+    if (!user) return; // Don't fetch if not logged in
+
     const loadData = async () => {
       try {
         const [loadedTasks, loadedSchedule] = await Promise.all([
-          fetchTasks(),
-          fetchSchedule()
+          fetchTasks(user.uid),
+          fetchSchedule(user.uid)
         ]);
         setTasks(loadedTasks);
         setSchedule(loadedSchedule);
@@ -74,7 +77,7 @@ export default function Index() {
       }
     };
     loadData();
-  }, [toast]);
+  }, [toast, user]);
 
   const [newTask, setNewTask] = useState("");
   const [selectedDay, setSelectedDay] = useState<string>(todayISO);
@@ -104,8 +107,6 @@ export default function Index() {
     return () => clearInterval(timer);
   }, []);
 
-  const { user, loading, signInWithGoogle, logout } = useAuth();
-
   const resetTaskDialog = () => {
     setTaskDialogTitle("");
     setTaskDialogTime("");
@@ -130,6 +131,7 @@ export default function Index() {
       completed: false,
       time: taskDialogTime || undefined,
       day: selectedDay,
+      user_id: user?.uid,
     };
 
     try {
@@ -157,6 +159,7 @@ export default function Index() {
       category: scheduleDialogCategory,
       completed: false,
       day: selectedDay,
+      user_id: user?.uid,
     };
 
     try {
@@ -221,7 +224,7 @@ export default function Index() {
     const oldTasks = tasks;
     setTasks((prev) => prev.filter((task) => task.id !== id));
     try {
-      await apiDeleteTask(id);
+      await apiDeleteTask(id, user?.uid);
     } catch (e) {
       setTasks(oldTasks);
       toast({ title: "Erro", description: "Falha ao excluir tarefa", variant: "destructive" });
@@ -263,6 +266,7 @@ export default function Index() {
         title: newTask,
         completed: false,
         day: selectedDay,
+        user_id: user?.uid,
       };
 
       try {
@@ -317,7 +321,7 @@ export default function Index() {
     const oldSchedule = schedule;
     setSchedule((prev) => prev.filter((s) => s.id !== id));
     try {
-      await apiDeleteScheduleItem(id);
+      await apiDeleteScheduleItem(id, user?.uid);
     } catch (e) {
       setSchedule(oldSchedule);
       toast({ title: "Erro", description: "Falha ao excluir bloco", variant: "destructive" });
@@ -342,10 +346,9 @@ export default function Index() {
     }
   };
 
-
-
   const [year, month, day] = selectedDay.split('-').map(Number);
-  const today = new Date(year, month - 1, day).toLocaleDateString("pt-BR", {
+  const dateObj = new Date(year, month - 1, day);
+  const formattedDate = dateObj.toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -364,7 +367,7 @@ export default function Index() {
                 <span className="text-primary">Rotin</span>
                 <Sparkles className="h-5 w-5 text-primary" />
               </h1>
-              <p className="text-sm text-muted-foreground capitalize">{today}</p>
+              <p className="text-sm text-muted-foreground capitalize">{formattedDate}</p>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
@@ -550,7 +553,7 @@ export default function Index() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <SubjectNotes date={selectedDay} key={selectedDay} />
+              <SubjectNotes date={selectedDay} key={selectedDay} userId={user?.uid} />
             </CardContent>
           </Card>
         </div>
@@ -563,7 +566,7 @@ export default function Index() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingTaskId ? "Editar tarefa" : "Adicionar tarefa"}</DialogTitle>
-              <DialogDescription>Insira o assunto e o horário (opcional) para {today}</DialogDescription>
+              <DialogDescription>Insira o assunto e o horário (opcional) para {formattedDate}</DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-2">
@@ -585,7 +588,7 @@ export default function Index() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingScheduleId ? "Editar bloco" : "Adicionar bloco no cronograma"}</DialogTitle>
-              <DialogDescription>Assunto, horário e duração para {today}</DialogDescription>
+              <DialogDescription>Assunto, horário e duração para {formattedDate}</DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-2">
