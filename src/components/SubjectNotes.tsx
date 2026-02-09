@@ -43,8 +43,7 @@ export default function SubjectNotes({ date, userId }: SubjectNotesProps) {
             // The backend returns empty list if not found.
             // Let's emulate the previous behavior: default items.
             setSubjects([
-              { id: generateId(), title: "🇧🇷 Língua Portuguesa", content: "", updatedAt: now() },
-              { id: generateId(), title: "⚖️ Direito", content: "", updatedAt: now() },
+              { id: generateId(), title: "📝 Anotações", content: "", updatedAt: now() },
             ]);
           }
         }
